@@ -1,0 +1,136 @@
+package Conexao;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import com.mysql.jdbc.PreparedStatement;
+
+import Entidades.Contato;
+import Excecao.DaoException;
+
+public class ContatoDao {
+
+	private Connection connection;
+	private Contato contato;
+	
+	public ContatoDao() throws ClassNotFoundException {
+		this.connection = new ConnectionFactory().getConnection();
+	}
+		
+    public int CriarTabela() throws SQLException{
+		
+		int executeUpdate = 0;
+		
+		try {
+			Statement   s =  connection.createStatement();
+			String create = "create table contatos ("
+					  + "id BIGINT NOT NULL AUTO_INCREMENT,"
+					  + "nome VARCHAR(255),"
+					  + "email VARCHAR(255),"
+					  + "endereco VARCHAR(255),"
+					  + "dataNascimento DATE,"
+					  + "primary key (id)"
+					  + ");";
+			executeUpdate = s.executeUpdate(create);
+			//connection.close();			
+			
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return executeUpdate;
+	}
+	
+	
+	public void adiciona(Contato contato) throws SQLException {
+		String sql = "insert into contatos " +
+	            "(nome,email,endereco,dataNascimento)" +
+	            " values (?,?,?,?)";
+		try {
+			java.sql.PreparedStatement stmt = connection.prepareStatement(sql);
+			
+			stmt.setString(1, contato.getNome());
+			stmt.setString(2, contato.getEmail());
+			stmt.setString(3, contato.getEndereco());
+			stmt.setDate(4, new Date(contato.getData().getTimeInMillis()));
+			
+			stmt.execute();
+			stmt.close();
+			connection.close();
+		}catch(SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public List<Contato> pegaLista() throws SQLException {
+		
+		java.sql.PreparedStatement stmt = this.connection.prepareStatement("select * from contatos");
+		ResultSet rs = stmt.executeQuery();
+		
+		List<Contato> contatos = new ArrayList<Contato>();
+		
+		try {			
+			
+			while(rs.next()) {
+				
+				//criando objeto contato
+				Contato contato = new Contato();
+				contato.setNome(rs.getString("nome"));
+				contato.setEmail(rs.getString("email"));
+				contato.setEndereco(rs.getString("endereco"));
+				
+				//montando data do calendario
+				Calendar data = Calendar.getInstance();
+				data.setTime(rs.getDate("dataNascimento"));
+				
+				contato.setData(data);
+				
+				//adicionando objeto a lista
+				contatos.add(contato);
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		
+		rs.close();
+		stmt.close();
+		
+		return contatos;
+	}
+	
+	public Contato pesquisaPorId(int id) throws DaoException, SQLException {
+		
+		contato = null;
+		
+		try {
+			
+			java.sql.PreparedStatement stmt = connection.prepareStatement("select * from contatos where id=" + id);
+			ResultSet rs = stmt.executeQuery();
+			
+			stmt.setInt(1, contato.getID());
+			
+			contato = new Contato();
+			
+			contato.setNome(rs.getString("nome"));
+			contato.setEmail(rs.getString("email"));
+			contato.setEndereco(rs.getString("endereco"));
+
+			Calendar date = Calendar.getInstance();
+			date.setTime(rs.getDate("dataNascimento"));
+			
+		}catch(SQLException e) {
+			throw new DaoException("Id não encontrada"); 
+		}
+		
+		
+		return contato;
+		
+	}
+}
