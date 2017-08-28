@@ -1,0 +1,3555 @@
+function fecharAba(){
+	 tab = mainPanel.activeTab;
+	 tab.removeTab(tab);
+}
+
+function abrirTipoRelatorioContabil() {
+	
+	var tipoRelatorioOperacaoContabeis = document.getElementsByName('tipoRelatorioOperacaoContabeis');
+	var value = '';
+	
+	for (var i = 0; i < tipoRelatorioOperacaoContabeis.length; i++) {
+		if (tipoRelatorioOperacaoContabeis[i].checked) {
+			value = tipoRelatorioOperacaoContabeis[i].value;
+			break;
+		}
+	}
+	
+	if (value == ''){
+		Ext.MessageBox.alert('', 'Selecione um tipo de relatório.', function() {}); 
+		return false;
+	}
+	
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do';
+	varUrl += '?method=carregarPagina';
+	var url_param = '&tipoRelatorioOperacaoContabeis=' + value;
+	
+	mainPanel.activeTab.load({url:varUrl,
+		method: 'POST',
+		params: url_param,
+		callback:function(){eval(value+"_formulario();");}});
+}
+
+function consolidadoOperacao_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoOperacao_dataInicial_field',
+		id			: 'relatorioConsolidadoOperacao_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoOperacao_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoOperacao_dataFinal_field',
+		id			  : 'relatorioConsolidadoOperacao_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoOperacaoAgência_dataInicial'
+	});	
+	
+	var storeOperacao = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=carregarComboOperacao',
+					method: 'POST'
+				})
+		),
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows',
+			fields: [
+		     			{name: 'chave'},
+		     			{name: 'valor'}
+		     		]
+		})
+	});
+	
+	var operacao_onChange = '1';
+	
+	var operacao = new Ext.form.ComboBox({
+		store         : storeOperacao,
+		hiddenName    : 'chaveOperacao',
+		valueField    : 'chave',
+		displayField  : 'valor',
+		typeAhead	  : true,
+		triggerAction : 'all',
+	    id			  : 'relatorioConsolidadoOperacao_operacao',
+	    renderTo  	  : "relatorioConsolidadoOperacao_operacao_field",
+		width	      : 150,
+		forceSelection: true,
+		editable      : false,
+		value    	  : 'Todos',
+		tabIndex	  : 0,
+		listeners	  : {
+			"select" : function(self) {
+				operacao_onChange = Ext.get('chaveOperacao').getValue();
+				storeProcedimentos.baseParams = {operacao : operacao_onChange};
+				storeProcedimentos.on('load', function(){
+					procedim.setValue(storeProcedimentos.getAt(0).get('chave'));
+				});
+				storeProcedimentos.load();
+			}
+		}
+	});
+}
+function consolidadoOperacaoAgencia_formulario() {
+	
+	var storeOperacao = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=carregarComboOperacao',
+					method: 'POST'
+				})
+		),
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows',
+			fields: [
+		     			{name: 'chave'},
+		     			{name: 'valor'}
+		     		]
+		})
+	});
+	
+	var operacao_onChange = '1';
+	
+	var operacao = new Ext.form.ComboBox({
+		store         : storeOperacao,
+		hiddenName    : 'chaveOperacao',
+		valueField    : 'chave',
+		displayField  : 'valor',
+		typeAhead	  : true,
+		triggerAction : 'all',
+	    id			  : 'relatorioConsolidadoOperacaoAgencia_operacao',
+	    renderTo  	  : "relatorioConsolidadoOperacaoAgencia_operacao_field",
+		width	      : 150,
+		forceSelection: true,
+		editable      : false,
+		value    	  : 'Todos',
+		tabIndex	  : 0,
+		listeners	  : {
+			"select" : function(self) {
+				operacao_onChange = Ext.get('chaveOperacao').getValue();
+				storeProcedimentos.baseParams = {operacao : operacao_onChange};
+				storeProcedimentos.on('load', function(){
+					procedim.setValue(storeProcedimentos.getAt(0).get('chave'));
+				});
+				storeProcedimentos.load();
+			}
+		}
+	});
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoOperacaoAgencia_dataInicial_field',
+		id			: 'relatorioConsolidadoOperacaoAgencia_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoOperacaoAgencia_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoOperacaoAgencia_dataFinal_field',
+		id			  : 'relatorioConsolidadoOperacaoAgencia_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoOperacaoAgencia_dataInicial'
+	});
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoOperacaoAgencia_agencia_field',
+		id			: 'relatorioConsolidadoOperacaoAgencia_agencia',
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+	
+}
+
+function relatorioAnalitico_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoOperacao_dataInicial_field',
+		id			: 'relatorioAnaliticoOperacao_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioAnaliticoOperacao_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioAnaliticoOperacao_dataFinal_field',
+		id			  : 'relatorioAnaliticoOperacao_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioAnaliticoOperacao_dataInicial'
+	});	
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoOperacao_agencia_field',
+		id			: 'relatorioAnaliticoOperacao_agencia', 
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+	
+	var storeOperacao = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=carregarComboOperacao',
+					method: 'POST'
+				})
+		),
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows',
+			fields: [
+		     			{name: 'chave'},
+		     			{name: 'valor'}
+		     		]
+		})
+	});
+	
+	var operacao_onChange = '1';
+	
+	var operacao = new Ext.form.ComboBox({
+		store         : storeOperacao,
+		hiddenName    : 'chaveOperacao',
+		valueField    : 'chave',
+		displayField  : 'valor',
+		typeAhead	  : true,
+		triggerAction : 'all',
+	    id			  : 'relatorioAnaliticoOperacao_operacao',
+	    renderTo  	  : "relatorioAnaliticoOperacao_operacao_field",
+		width	      : 150,
+		forceSelection: true,
+		editable      : false,
+		value    	  : 'Todos',
+		tabIndex	  : 0,
+		listeners	  : {
+			"select" : function(self) {
+				operacao_onChange = Ext.get('chaveOperacao').getValue();
+				storeProcedimentos.baseParams = {operacao : operacao_onChange};
+				storeProcedimentos.on('load', function(){
+					procedim.setValue(storeProcedimentos.getAt(0).get('chave'));
+				});
+				storeProcedimentos.load();
+			}
+		}
+	});
+	
+}
+
+function relatorioConsolidadoOperacao_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoOperacao_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoOperacao_dataFinal').getValue();
+	var operacao	 	= Ext.get('relatorioConsolidadoOperacao_operacao').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoOperacao'));
+	Ext.get('relatorioConsolidadoOperacao_div').removeClass('hide');
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoOperacaoTotalizador'));
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoOperacao',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			operacao	: operacao
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'},
+			                           {name: 'C6'},
+			                           {name: 'C7'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}else{
+	    		var storeTotal = new Ext.data.Store({
+	    			proxy: new Ext.data.HttpProxy(
+	    					new Ext.data.Connection({
+	    						url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoOperacaoTotalizador',
+	    						method: 'POST'
+	    					})
+	    			),
+	    			baseParams: {
+	    				dtInicial	: dtInicial,
+	    				dtFinal		: dtFinal,
+	    				operacao	: operacao
+	    			},
+	    			reader: new Ext.data.JsonReader({
+	    				totalProperty: 'total',
+	    				root: 'rows'},
+	    				Ext.data.Record.create([
+	    				                           {name: 'C0'},
+	    				                           {name: 'C1'},
+	    				                           {name: 'C2'},
+	    				                           {name: 'C3'},
+	    				                           {name: 'C4'},
+	    				                           {name: 'C5'},
+	    				                           {name: 'C6'}
+	    				                       ])
+	    				)
+	    		});
+	    		
+	    		storeTotal.load({
+	    			callback: function(){
+	    				var grid = new Ext.grid.GridPanel({
+	    					hideHeaders: true,
+	    					id     : 'relatorioConsolidadoOperacaoTotalizador', 
+	    					store  : storeTotal,
+	    					columns: [
+	    						{
+	    							header   : 'Total',
+	    							width    : 100,
+	    							dataIndex: 'C0',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C1',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C2',
+	    							renderer: 'brMoney',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C3',
+	    							renderer: 'brMoney',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C4',
+	    							renderer: 'brMoney',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C5',
+	    							renderer: 'brMoney',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C6',
+	    							renderer: 'brMoney',
+	    							sortable : false
+	    						}
+	    					],	
+	    					stripeRows: true,
+	    					height	  : 24,
+	    					width	  : '98%',
+	    					renderTo  : 'relatorioConsolidadoOperacaoTotalizador'
+	    				
+	    				});	
+	    				
+	    				Ext.getCmp('relatorioConsolidadoOperacaoTotalizador').render();
+	    				Ext.getCmp('relatorioConsolidadoOperacaoTotalizador_div').getView().refresh();
+	    				
+	    	    	}
+	    		});
+	    		
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoOperacao', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Data',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Compras',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},{
+						header   : 'Vendas',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},{
+						header   : 'Corretagem',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},{
+						header   : 'Emolumentos',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},{
+						header   : 'Imposto de Renda Operações Normais',
+						width    : 200,
+						dataIndex: 'C5',
+						sortable : true
+					},{
+						header   : 'Imposto de Renda Operações Day Trade',
+						width    : 220,
+						dataIndex: 'C6',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoOperacao',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoOperacao').render();
+			Ext.getCmp('relatorioConsolidadoOperacao_div').getView().refresh();
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoOperacao_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoOperacao';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoOperacao_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoOperacao';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoOperacao_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoOperacao';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoOperacaoAgencia_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicialAgencia		= Ext.get('relatorioConsolidadoOperacaoAgencia_dataInicial').getValue();
+	var dtFinalAgencia			= Ext.get('relatorioConsolidadoOperacaoAgencia_dataFinal').getValue();
+	var operacaoAgencia	 		= Ext.get('relatorioConsolidadoOperacaoAgencia_operacao').getValue();
+	var agenciaAgencia		 	= Ext.get('relatorioConsolidadoOperacaoAgencia_agencia').getValue();
+	
+	if(dtInicialAgencia == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoOperacaoAgencia'));
+	Ext.get('relatorioConsolidadoOperacaoAgencia_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoOperacaoAgencia',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicialAgencia	: dtInicialAgencia,
+			dtFinalAgencia		: dtFinalAgencia,
+			operacaoAgencia		: operacaoAgencia,
+			agenciaAgencia      : agenciaAgencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'},
+			                           {name: 'C6'},
+			                           {name: 'C7'},
+			                           {name: 'C8'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoOperacaoAgencia', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Data',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Agencia',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},{
+						header   : 'Compras',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},{
+						header   : 'Vendas',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},{
+						header   : 'Corretagem',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},{
+						header   : 'Emolumentos',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					},{
+						header   : 'Imposto de Renda Operações Normais',
+						width    : 200,
+						dataIndex: 'C6',
+						sortable : true
+					},{
+						header   : 'Imposto de Renda Operações Day Trade',
+						width    : 220,
+						dataIndex: 'C7',
+						sortable : true
+					},{
+						header   : 'Valor Total',
+						width    : 100,
+						dataIndex: 'C8',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoOperacaoAgencia',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoOperacaoAgencia').render();
+			Ext.getCmp('relatorioConsolidadoOperacaoAgencia_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoOperacaoAgencia_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoOperacaoAgencia';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoOperacaoAgencia_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoOperacaoAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoOperacaoAgencia_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoOperacaoAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoOperacao_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicialAnalitico			= Ext.get('relatorioAnaliticoOperacao_dataInicial').getValue();
+	var dtFinalAnalitico			= Ext.get('relatorioAnaliticoOperacao_dataFinal').getValue();
+	var operacaoAnalitico	 		= Ext.get('relatorioAnaliticoOperacao_operacao').getValue();
+	var agenciaAnalitico		 	= Ext.get('relatorioAnaliticoOperacao_agencia').getValue();
+	
+	if(dtInicialAnalitico == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioAnaliticoOperacao'));
+	Ext.get('relatorioAnaliticoOperacao_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioAnaliticoOperacao',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicialAnalitico	: dtInicialAnalitico,
+			dtFinalAnalitico	: dtFinalAnalitico,
+			operacaoAnalitico	: operacaoAnalitico,
+			agenciaAnalitico    : agenciaAnalitico
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'},
+			                           {name: 'C6'},
+			                           {name: 'C7'},
+			                           {name: 'C8'},
+									   {name: 'C9'},
+									   {name: 'C10'},
+									   {name: 'C11'},
+									   {name: 'C12'},
+									   {name: 'C13'},
+									   {name: 'C14'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioAnaliticoOperacao', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Data',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Agencia',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},{
+						header   : 'Conta',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},{
+						header   : 'Cliente',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},{
+						header   : 'Código CBLC do Investidor',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},{
+						header   : 'Operação',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					},{
+						header   : 'Título',
+						width    : 200,
+						dataIndex: 'C6',
+						sortable : true
+					},{
+						header   : 'Quantidade',
+						width    : 220,
+						dataIndex: 'C7',
+						sortable : true
+					},{
+						header   : 'Preço',
+						width    : 100,
+						dataIndex: 'C8',
+						sortable : true
+					},{
+						header   : 'Total',
+						width    : 100,
+						dataIndex: 'C9',
+						sortable : true
+					},{
+						header   : 'Corretagem',
+						width    : 100,
+						dataIndex: 'C10',
+						sortable : true
+					},{
+						header   : 'Emolumentos',
+						width    : 100,
+						dataIndex: 'C11',
+						sortable : true
+					},{
+						header   : 'Taxa de Registro',
+						width    : 100,
+						dataIndex: 'C12',
+						sortable : true
+					},{
+						header   : 'Taxa ANA',
+						width    : 100,
+						dataIndex: 'C13',
+						sortable : true
+					},{
+						header   : 'IRRF sobre operações',
+						width    : 100,
+						dataIndex: 'C14',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioAnaliticoOperacao',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioAnaliticoOperacao').render();
+			Ext.getCmp('relatorioAnaliticoOperacao_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioAnaliticoOperacao_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioAnaliticoOperacao';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioAnaliticoOperacao_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioAnaliticoOperacao';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoOperacao_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioAnaliticoOperacao';
+	window.open(varUrl,'Download');
+}
+
+/*--------------------------------------------------------------------------------------------------------------------------------------*/
+
+function abrirTipoRelatorioContabilProventos() {
+	
+	var tipoRelatorioOperacaoContabeis = document.getElementsByName('tipoRelatorioProventosContabeis');
+	var value = '';
+	
+	for (var i = 0; i < tipoRelatorioOperacaoContabeis.length; i++) {
+		if (tipoRelatorioOperacaoContabeis[i].checked) {
+			value = tipoRelatorioOperacaoContabeis[i].value;
+			break;
+		}
+	}
+	
+	if (value == ''){
+		Ext.MessageBox.alert('', 'Selecione um tipo de relatório.', function() {}); 
+		return false;
+	}
+	
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do';
+	varUrl += '?method=carregarPagina';
+	var url_param = '&tipoRelatorioOperacaoContabeis=' + value;
+	
+	mainPanel.activeTab.load({url:varUrl,
+		method: 'POST',
+		params: url_param,
+		callback:function(){eval(value+"_formulario();");}});
+}
+
+function consolidadoProventos_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoProventos_dataInicial_field',
+		id			: 'relatorioConsolidadoProventos_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoProventos_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoProventos_dataFinal_field',
+		id			  : 'relatorioConsolidadoProventos_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoProventos_dataInicial'
+	});	
+}
+
+function consolidadoProventosAgencia_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoProventosAgencia_dataInicial_field',
+		id			: 'relatorioConsolidadoProventosAgencia_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoProventosAgencia_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoProventosAgencia_dataFinal_field',
+		id			  : 'relatorioConsolidadoProventosAgencia_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoProventosAgencia_dataInicial'
+	});
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoProventosAgencia_operacao_field',
+		id			: 'relatorioConsolidadoProventosAgencia_agencia',
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+	
+}
+
+function analiticoProventos_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoProventos_dataInicial_field',
+		id			: 'relatorioAnaliticoProventos_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioAnaliticoProventos_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioAnaliticoProventos_dataFinal_field',
+		id			  : 'relatorioAnaliticoProventos_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioAnaliticoProventos_dataInicial'
+	});	
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoProventos_agencia_field',
+		id			: 'relatorioAnaliticoProventos_agencia', 
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+}
+
+function relatorioConsolidadoProventos_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoProventos_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoProventos_dataFinal').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoProventos'));
+	Ext.get('relatorioConsolidadoProventos_div').removeClass('hide');
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoProventosTotalizador'));
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoProventos',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C2'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}else{
+	    		
+	    		var storeTotal = new Ext.data.Store({
+	    			proxy: new Ext.data.HttpProxy(
+	    					new Ext.data.Connection({
+	    						url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoProventosTotalizador',
+	    						method: 'POST'
+	    					})
+	    			),
+	    			baseParams: {
+	    				dtInicial	: dtInicial,
+	    				dtFinal		: dtFinal
+	    			},
+	    			reader: new Ext.data.JsonReader({
+	    				totalProperty: 'total',
+	    				root: 'rows'},
+	    				Ext.data.Record.create([
+	    				                           {name: 'C0'},
+	    				                           {name: 'C2'}
+	    				                       ])
+	    				)
+	    		});
+	    		
+	    		storeTotal.load({
+	    			callback: function(){
+	    				var grid = new Ext.grid.GridPanel({
+	    					hideHeaders: true,
+	    					id     : 'relatorioConsolidadoProventosTotalizador', 
+	    					store  : storeTotal,
+	    					columns: [
+	    						{
+	    							header   : 'Total',
+	    							width    : 100,
+	    							dataIndex: 'C0',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C2',
+	    							sortable : false
+	    						}
+	    					],	
+	    					stripeRows: true,
+	    					height	  : 24,
+	    					width	  : '98%',
+	    					renderTo  : 'relatorioConsolidadoProventosTotalizador'
+	    				
+	    				});	
+	    				
+	    				Ext.getCmp('relatorioConsolidadoProventosTotalizador').render();
+	    				Ext.getCmp('relatorioConsolidadoProventosTotalizador').getView().refresh();
+	    				
+	    	    	}
+	    		});
+	    		
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoProventos', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Data',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Proventos',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoProventos',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoProventos').render();
+			Ext.getCmp('relatorioConsolidadoProventos_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+	
+    	
+}
+
+function relatorioConsolidadoProventos_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoProventos';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoProventos_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoProventos';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoProventos_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoProventos';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoProventosAgencia_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoProventosAgencia_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoProventosAgencia_dataFinal').getValue();
+	var agencia			= Ext.get('relatorioConsolidadoProventosAgencia_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoProventosAgencia'));
+	Ext.get('relatorioConsolidadoProventosAgencia_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoProventosAgencia',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia     : agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoProventosAgencia', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Proventos',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoProventosAgencia',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoProventosAgencia').render();
+			Ext.getCmp('relatorioConsolidadoProventosAgencia_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoProventosAgencia_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoProventosAgencia';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoProventosAgencia_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoProventosAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoProventosAgencia_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoProventosAgencia';
+	window.open(varUrl,'Download');
+}
+
+
+function relatorioAnaliticoProventos_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioAnaliticoProventos_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioAnaliticoProventos_dataFinal').getValue();
+	var agencia			= Ext.get('relatorioAnaliticoProventos_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioAnaliticoProventos'));
+	Ext.get('relatorioAnaliticoProventos_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioAnaliticoProventos',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia     : agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'},
+			                           {name: 'C6'},
+			                           {name: 'C7'},
+			                           {name: 'C8'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioAnaliticoProventos', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Conta',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},{
+						header   : 'Cliente',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},{
+						header   : 'Cód CBLC',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},{
+						header   : 'Proventos',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},{
+						header   : 'Título',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					},{
+						header   : 'Quantidade',
+						width    : 100,
+						dataIndex: 'C6',
+						sortable : true
+					},{
+						header   : 'Valor',
+						width    : 100,
+						dataIndex: 'C7',
+						sortable : true
+					},{
+						header   : 'Total',
+						width    : 100,
+						dataIndex: 'C8',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioAnaliticoProventos',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioAnaliticoProventos').render();
+			Ext.getCmp('relatorioAnaliticoProventos_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioAnaliticoProventos_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioAnaliticoProventos';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioAnaliticoProventos_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioAnaliticoProventos';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoProventos_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioAnaliticoProventos';
+	window.open(varUrl,'Download');
+}
+
+/*--------------------------------------------------------------------------------------------------------------------------------------*/
+
+function abrirTipoRelatorioContabilSubscricao() {
+	
+	var tipoRelatorioOperacaoContabeis = document.getElementsByName('tipoRelatorioSubscricaoContabeis');
+	var value = '';
+	
+	for (var i = 0; i < tipoRelatorioOperacaoContabeis.length; i++) {
+		if (tipoRelatorioOperacaoContabeis[i].checked) {
+			value = tipoRelatorioOperacaoContabeis[i].value;
+			break;
+		}
+	}
+	
+	if (value == ''){
+		Ext.MessageBox.alert('', 'Selecione um tipo de relatório.', function() {}); 
+		return false;
+	}
+	
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do';
+	varUrl += '?method=carregarPagina';
+	var url_param = '&tipoRelatorioOperacaoContabeis=' + value;
+	
+	mainPanel.activeTab.load({url:varUrl,
+		method: 'POST',
+		params: url_param,
+		callback:function(){eval(value+"_formulario();");}});
+}
+
+function consolidadoSubscricao_formulario(){
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoSubscricao_dataInicial_field',
+		id			: 'relatorioConsolidadoSubscricao_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoSubscricao_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoSubscricao_dataFinal_field',
+		id			  : 'relatorioConsolidadoSubscricao_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoSubscricao_dataInicial'
+	});	
+}
+
+function consolidadoSubscricaoAgencia_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoSubscricaoAgencia_dataInicial_field',
+		id			: 'relatorioConsolidadoSubscricaoAgencia_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoSubscricaoAgencia_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoSubscricaoAgencia_dataFinal_field',
+		id			  : 'relatorioConsolidadoSubscricaoAgencia_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoSubscricaoAgencia_dataInicial'
+	});
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoSubscricaoAgencia_operacao_field',
+		id			: 'relatorioConsolidadoSubscricaoAgencia_agencia',
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+	
+}
+
+function analiticoSubscricao_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoSubscricao_dataInicial_field',
+		id			: 'relatorioAnaliticoSubscricao_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioAnaliticoSubscricao_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioAnaliticoSubscricao_dataFinal_field',
+		id			  : 'relatorioAnaliticoSubscricao_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioAnaliticoSubscricao_dataInicial'
+	});	
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoSubscricao_agencia_field',
+		id			: 'relatorioAnaliticoSubscricao_agencia', 
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+}
+
+function relatorioConsolidadoSubscricao_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoSubscricao_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoSubscricao_dataFinal').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoSubscricao'));
+	Ext.get('relatorioConsolidadoSubscricao_div').removeClass('hide');
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoSubscricaoTotalizador'));
+	Ext.get('relatorioConsolidadoSubscricaoTotalizador').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoSubscricao',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}else{
+	    		var storeTotal = new Ext.data.Store({
+	    			proxy: new Ext.data.HttpProxy(
+	    					new Ext.data.Connection({
+	    						url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoSubscricaoTotalizador',
+	    						method: 'POST'
+	    					})
+	    			),
+	    			baseParams: {
+	    				dtInicial	: dtInicial,
+	    				dtFinal		: dtFinal
+	    			},
+	    			reader: new Ext.data.JsonReader({
+	    				totalProperty: 'total',
+	    				root: 'rows'},
+	    				Ext.data.Record.create([
+	    				                           {name: 'C0'},
+	    				                           {name: 'C1'},
+	    				                           {name: 'C2'}
+	    				                       ])
+	    				)
+	    		});
+	    		
+	    		storeTotal.load({
+	    			callback: function(){
+	    				var grid = new Ext.grid.GridPanel({
+	    					hideHeaders: true,
+	    					id     : 'relatorioConsolidadoSubscricaoTotalizador', 
+	    					store  : storeTotal,
+	    					columns: [
+	    						{
+	    							header   : 'Total',
+	    							width    : 100,
+	    							dataIndex: 'C0',
+	    							sortable : false
+	    						},{
+	    							width    : 500,
+	    							dataIndex: 'C1',
+	    							sortable : false
+	    						},
+	    						{
+	    							width    : 100,
+	    							dataIndex: 'C2',
+	    							sortable : false
+	    						}
+	    					],	
+	    					stripeRows: true,
+	    					height	  : 24,
+	    					width	  : '98%',
+	    					renderTo  : 'relatorioConsolidadoSubscricaoTotalizador'
+	    				
+	    				});	
+	    				
+	    				Ext.getCmp('relatorioConsolidadoSubscricaoTotalizador').render();
+	    				Ext.getCmp('relatorioConsolidadoSubscricaoTotalizador').getView().refresh();
+	    				
+	    	    	}
+	    		});
+	    		
+	    	}
+
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoSubscricao', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Data',
+						width    : 600,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Subscrição',
+						width    : 608,
+						dataIndex: 'C1',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoSubscricao',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoSubscricao').render();
+			Ext.getCmp('relatorioConsolidadoSubscricao_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoSubscricao_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoSubscricao';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoSubscricao_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoSubscricao';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoSubscricao_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoSubscricao';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoSubscricaoAgencia_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoSubscricaoAgencia_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoSubscricaoAgencia_dataFinal').getValue();
+	var agencia         = Ext.get('relatorioConsolidadoSubscricaoAgencia_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoSubscricaoAgencia'));
+	Ext.get('relatorioConsolidadoSubscricaoAgencia_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoSubscricaoAgencia',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia		: agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoSubscricaoAgencia', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Subscrição',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoSubscricaoAgencia',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoSubscricaoAgencia').render();
+			Ext.getCmp('relatorioConsolidadoSubscricaoAgencia_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoSubscricaoAgencia_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoSubscricaoAgencia';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoSubscricaoAgencia_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoSubscricaoAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoSubscricaoAgencia_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoSubscricaoAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoSubscricao_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioAnaliticoSubscricao_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioAnaliticoSubscricao_dataFinal').getValue();
+	var agencia         = Ext.get('relatorioAnaliticoSubscricao_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioAnaliticoSubscricao'));
+	Ext.get('relatorioAnaliticoSubscricao_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioAnaliticoSubscricao',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia		: agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'},
+			                           {name: 'C6'},
+			                           {name: 'C7'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioAnaliticoSubscricao', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Conta',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},
+					{
+						header   : 'Cliente',
+						width    : 250,
+						dataIndex: 'C2',
+						sortable : true
+					},
+					{
+						header   : 'Código CBLC',
+						width    : 200,
+						dataIndex: 'C3',
+						sortable : true
+					},
+					{
+						header   : 'Título',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},
+					{
+						header   : 'Quantidade',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					},
+					{
+						header   : 'Valor',
+						width    : 100,
+						dataIndex: 'C6',
+						sortable : true
+					},
+					{
+						header   : 'Total',
+						width    : 100,
+						dataIndex: 'C7',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioAnaliticoSubscricao',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioAnaliticoSubscricao').render();
+			Ext.getCmp('relatorioAnaliticoSubscricao_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioAnaliticoSubscricao_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioAnaliticoSubscricao';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioAnaliticoSubscricao_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioAnaliticoSubscricao';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoSubscricao_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioAnaliticoSubscricao';
+	window.open(varUrl,'Download');
+}
+
+/*--------------------------------------------------------------------------------------------------------------------------------------*/
+
+function abrirTipoRelatorioContabilOfertaPublica() {
+	
+	var tipoRelatorioOperacaoContabeis = document.getElementsByName('tipoRelatorioOfertaPublicaContabeis');
+	var value = '';
+	
+	for (var i = 0; i < tipoRelatorioOperacaoContabeis.length; i++) {
+		if (tipoRelatorioOperacaoContabeis[i].checked) {
+			value = tipoRelatorioOperacaoContabeis[i].value;
+			break;
+		}
+	}
+	
+	if (value == ''){
+		Ext.MessageBox.alert('', 'Selecione um tipo de relatório.', function() {}); 
+		return false;
+	}
+	
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do';
+	varUrl += '?method=carregarPagina';
+	var url_param = '&tipoRelatorioOperacaoContabeis=' + value;
+	
+	mainPanel.activeTab.load({url:varUrl,
+		method: 'POST',
+		params: url_param,
+		callback:function(){eval(value+"_formulario();");}});
+}
+
+function consolidadoOfertaPublica_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoOfertaPublica_dataInicial_field',
+		id			: 'relatorioConsolidadoOfertaPublica_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoOfertaPublica_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoOfertaPublica_dataFinal_field',
+		id			  : 'relatorioConsolidadoOfertaPublica_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoOfertaPublica_dataInicial'
+	});	
+}
+
+function consolidadoOfertaPublicaAgencia_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoOfertaPublicaAgencia_dataInicial_field',
+		id			: 'relatorioConsolidadoOfertaPublicaAgencia_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoOfertaPublicaAgencia_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoOfertaPublicaAgencia_dataFinal_field',
+		id			  : 'relatorioConsolidadoOfertaPublicaAgencia_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoOfertaPublicaAgencia_dataInicial'
+	});
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoOfertaPublicaAgencia_operacao_field',
+		id			: 'relatorioConsolidadoOfertaPublicaAgencia_agencia',
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+	
+}
+
+function analiticoOfertaPublica_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoOfertaPublica_dataInicial_field',
+		id			: 'relatorioAnaliticoOfertaPublica_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioAnaliticoOfertaPublica_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioAnaliticoOfertaPublica_dataFinal_field',
+		id			  : 'relatorioAnaliticoOfertaPublica_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioAnaliticoOfertaPublica_dataInicial'
+	});	
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoOfertaPublica_agencia_field',
+		id			: 'relatorioAnaliticoOfertaPublica_agencia', 
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+}
+
+function relatorioConsolidadoOfertaPublica_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoOfertaPublica_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoOfertaPublica_dataFinal').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoOfertaPublica'));
+	Ext.get('relatorioConsolidadoOfertaPublica_div').removeClass('hide');
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoOfertaPublicaTotalizador'));
+	Ext.get('relatorioConsolidadoOfertaPublicaTotalizador').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoOfertaPublica',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}else{
+	    		var storeTotal = new Ext.data.Store({
+	    			proxy: new Ext.data.HttpProxy(
+	    					new Ext.data.Connection({
+	    						url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoOfertaPublicaTotalizador',
+	    						method: 'POST'
+	    					})
+	    			),
+	    			baseParams: {
+	    				dtInicial	: dtInicial,
+	    				dtFinal		: dtFinal
+	    			},
+	    			reader: new Ext.data.JsonReader({
+	    				totalProperty: 'total',
+	    				root: 'rows'},
+	    				Ext.data.Record.create([
+	    				                           {name: 'C0'},
+	    				                           {name: 'C1'},
+	    				                           {name: 'C2'}
+	    				                       ])
+	    				)
+	    		});
+	    		
+	    		storeTotal.load({
+	    			callback: function(){
+	    				var grid = new Ext.grid.GridPanel({
+	    					hideHeaders: true,
+	    					id     : 'relatorioConsolidadoOfertaPublicaTotalizador', 
+	    					store  : storeTotal,
+	    					columns: [
+	    						{
+	    							header   : 'Total',
+	    							width    : 100,
+	    							dataIndex: 'C0',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C1',
+	    							sortable : false
+	    						}
+	    					],	
+	    					stripeRows: true,
+	    					height	  : 24,
+	    					width	  : '98%',
+	    					renderTo  : 'relatorioConsolidadoOfertaPublicaTotalizador'
+	    				
+	    				});	
+	    				
+	    				Ext.getCmp('relatorioConsolidadoOfertaPublicaTotalizador').render();
+	    				Ext.getCmp('relatorioConsolidadoOfertaPublicaTotalizador').getView().refresh();
+	    				
+	    	    	}
+	    		});
+	    		
+	    	}
+
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoOfertaPublica', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Data',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Oferta Pública',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoOfertaPublica',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoOfertaPublica').render();
+			Ext.getCmp('relatorioConsolidadoOfertaPublica').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoOfertaPublica_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoOfertaPublica';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoOfertaPublica_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoOfertaPublica';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoOfertaPublica_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoOfertaPublica';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoOfertaPublicaAgencia_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoOfertaPublicaAgencia_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoOfertaPublicaAgencia_dataFinal').getValue();
+	var agencia         = Ext.get('relatorioConsolidadoOfertaPublicaAgencia_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoOfertaPublicaAgencia'));
+	Ext.get('relatorioConsolidadoOfertaPublicaAgencia_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoOfertaPublicaAgencia',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia     : agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoOfertaPublicaAgencia', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Oferta Pública',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoOfertaPublicaAgencia',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoOfertaPublicaAgencia').render();
+			Ext.getCmp('relatorioConsolidadoOfertaPublicaAgencia').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoOfertaPublicaAgencia_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoOfertaPublicaAgencia';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoOfertaPublicaAgencia_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoOfertaPublicaAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoOfertaPublicaAgencia_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoOfertaPublicaAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoOfertaPublica_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioAnaliticoOfertaPublica_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioAnaliticoOfertaPublica_dataFinal').getValue();
+	var agencia         = Ext.get('relatorioAnaliticoOfertaPublica_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioAnaliticoOfertaPublica'));
+	Ext.get('relatorioAnaliticoOfertaPublica_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioAnaliticoOfertaPublica',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia     : agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'},
+			                           {name: 'C6'},
+			                           {name: 'C7'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioAnaliticoOfertaPublica', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Conta',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},
+					{
+						header   : 'Cliente',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},
+					{
+						header   : 'Código CBLC',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},
+					{
+						header   : 'Título',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},
+					{
+						header   : 'Quantidade',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					},
+					{
+						header   : 'Valor',
+						width    : 100,
+						dataIndex: 'C6',
+						sortable : true
+					},
+					{
+						header   : 'Total',
+						width    : 100,
+						dataIndex: 'C7',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioAnaliticoOfertaPublica',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioAnaliticoOfertaPublica').render();
+			Ext.getCmp('relatorioAnaliticoOfertaPublica').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioAnaliticoOfertaPublica_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioAnaliticoOfertaPublica';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioAnaliticoOfertaPublica_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioAnaliticoOfertaPublica';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoOfertaPublica_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioAnaliticoOfertaPublica';
+	window.open(varUrl,'Download');
+}
+
+/*--------------------------------------------------------------------------------------------------------------------------------------*/
+
+function abrirTipoRelatorioContabilCustodia() {
+	
+	var tipoRelatorioOperacaoContabeis = document.getElementsByName('tipoRelatorioCustodiaContabeis');
+	var value = '';
+	
+	for (var i = 0; i < tipoRelatorioOperacaoContabeis.length; i++) {
+		if (tipoRelatorioOperacaoContabeis[i].checked) {
+			value = tipoRelatorioOperacaoContabeis[i].value;
+			break;
+		}
+	}
+	
+	if (value == ''){
+		Ext.MessageBox.alert('', 'Selecione um tipo de relatório.', function() {}); 
+		return false;
+	}
+	
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do';
+	varUrl += '?method=carregarPagina';
+	var url_param = '&tipoRelatorioOperacaoContabeis=' + value;
+	
+	mainPanel.activeTab.load({url:varUrl,
+		method: 'POST',
+		params: url_param,
+		callback:function(){eval(value+"_formulario();");}});
+}
+
+function consolidadoCustodia_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoCustodia_dataInicial_field',
+		id			: 'relatorioConsolidadoCustodia_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoCustodia_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoCustodia_dataFinal_field',
+		id			  : 'relatorioConsolidadoCustodia_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoCustodia_dataInicial'
+	});	
+}
+
+function consolidadoCustodiaAgencia_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoCustodiaAgencia_dataInicial_field',
+		id			: 'relatorioConsolidadoCustodiaAgencia_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoCustodiaAgencia_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoCustodiaAgencia_dataFinal_field',
+		id			  : 'relatorioConsolidadoCustodiaAgencia_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoCustodiaAgencia_dataInicial'
+	});
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoCustodiaAgencia_operacao_field',
+		id			: 'relatorioConsolidadoCustodiaAgencia_agencia',
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+	
+}
+
+function analiticoCustodia_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoCustodia_dataInicial_field',
+		id			: 'relatorioAnaliticoCustodia_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioAnaliticoCustodia_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioAnaliticoCustodia_dataFinal_field',
+		id			  : 'relatorioAnaliticoCustodia_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioAnaliticoCustodia_dataInicial'
+	});	
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoCustodia_agencia_field',
+		id			: 'relatorioAnaliticoCustodia_agencia', 
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+}
+
+function relatorioConsolidadoCustodia_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoCustodia_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoCustodia_dataFinal').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoCustodia'));
+	Ext.get('relatorioConsolidadoCustodia_div').removeClass('hide');
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoCustodiaTotalizador'));
+	Ext.get('relatorioConsolidadoCustodiaTotalizador').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoCustodia',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}else{
+	    		
+	    		var storeTotal = new Ext.data.Store({
+	    			proxy: new Ext.data.HttpProxy(
+	    					new Ext.data.Connection({
+	    						url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoCustodiaTotalizador',
+	    						method: 'POST'
+	    					})
+	    			),
+	    			baseParams: {
+	    				dtInicial	: dtInicial,
+	    				dtFinal		: dtFinal
+	    			},
+	    			reader: new Ext.data.JsonReader({
+	    				totalProperty: 'total',
+	    				root: 'rows'},
+	    				Ext.data.Record.create([
+	    				                           {name: 'C0'},
+	    				                           {name: 'C1'},
+	    				                           {name: 'C2'}
+	    				                       ])
+	    				)
+	    		});
+	    		
+	    		storeTotal.load({
+	    			callback: function(){
+	    				var grid = new Ext.grid.GridPanel({
+	    					hideHeaders: true,
+	    					id     : 'relatorioConsolidadoCustodiaTotalizador', 
+	    					store  : storeTotal,
+	    					columns: [
+	    						{
+	    							header   : 'Total',
+	    							width    : 100,
+	    							dataIndex: 'C0',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C1',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C2',
+	    							sortable : false
+	    						}
+	    					],	
+	    					stripeRows: true,
+	    					height	  : 24,
+	    					width	  : '98%',
+	    					renderTo  : 'relatorioConsolidadoCustodiaTotalizador'
+	    				
+	    				});	
+	    				
+	    				Ext.getCmp('relatorioConsolidadoCustodiaTotalizador').render();
+	    				Ext.getCmp('relatorioConsolidadoCustodiaTotalizador').getView().refresh();
+	    				
+	    	    	}
+	    		});
+	    		
+	    	}
+
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoCustodia', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Data',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Custódia',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},
+					{
+						header   : 'Informes',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoCustodia',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoCustodia').render();
+			Ext.getCmp('relatorioConsolidadoCustodia').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoCustodia_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoCustodia';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoCustodia_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoCustodia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoCustodia_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoCustodia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoCustodiaAgencia_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoCustodiaAgencia_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoCustodiaAgencia_dataFinal').getValue();
+	var agencia			= Ext.get('relatorioConsolidadoCustodiaAgencia_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoCustodiaAgencia'));
+	Ext.get('relatorioConsolidadoCustodiaAgencia_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoCustodiaAgencia',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia     : agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoCustodiaAgencia', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Custódia',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},
+					{
+						header   : 'Informes',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoCustodiaAgencia',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoCustodiaAgencia').render();
+			Ext.getCmp('relatorioConsolidadoCustodiaAgencia').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoCustodiaAgencia_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoCustodiaAgencia';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoCustodiaAgencia_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoCustodiaAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoCustodiaAgencia_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoCustodiaAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoCustodia_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioAnaliticoCustodia_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioAnaliticoCustodia_dataFinal').getValue();
+	var agencia			= Ext.get('relatorioAnaliticoCustodia_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioAnaliticoCustodia'));
+	Ext.get('relatorioAnaliticoCustodia_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioAnaliticoCustodia',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia     : agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioAnaliticoCustodia', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Conta',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},
+					{
+						header   : 'Cliente',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},
+					{
+						header   : 'Código CBLC',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},
+					{
+						header   : 'Taxa',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},
+					{
+						header   : 'Valor',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioAnaliticoCustodia',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioAnaliticoCustodia').render();
+			Ext.getCmp('relatorioAnaliticoCustodia').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioAnaliticoCustodia_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioAnaliticoCustodia';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioAnaliticoCustodia_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioAnaliticoCustodia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoCustodia_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioAnaliticoCustodia';
+	window.open(varUrl,'Download');
+}
+
+/*--------------------------------------------------------------------------------------------------------------------------------------*/
+
+function abrirTipoRelatorioContabilCorretagem() {
+	
+		
+	var tipoRelatorioOperacaoContabeis = document.getElementsByName('tipoRelatorioCorretagemContabeis');
+	var value = '';
+		
+	for (var i = 0; i < tipoRelatorioOperacaoContabeis.length; i++) {
+		if (tipoRelatorioOperacaoContabeis[i].checked) {
+			value = tipoRelatorioOperacaoContabeis[i].value;
+			break;
+		}
+	}
+		
+	if (value == ''){
+		Ext.MessageBox.alert('', 'Selecione um tipo de relatório.', function() {}); 
+		return false;
+	}
+		
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do';
+	varUrl += '?method=carregarPagina';
+	var url_param = '&tipoRelatorioOperacaoContabeis=' + value;
+		
+	mainPanel.activeTab.load({url:varUrl,
+		method: 'POST',
+		params: url_param,
+		callback:function(){eval(value+"_formulario();");}});
+}
+
+function consolidadoCorretagem_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoCorretagem_dataInicial_field',
+		id			: 'relatorioConsolidadoCorretagem_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoCorretagem_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoCorretagem_dataFinal_field',
+		id			  : 'relatorioConsolidadoCorretagem_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoCorretagem_dataInicial'
+	});	
+}
+
+function consolidadoCorretagemAgencia_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoCorretagemAgencia_dataInicial_field',
+		id			: 'relatorioConsolidadoCorretagemAgencia_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioConsolidadoCorretagemAgencia_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioConsolidadoCorretagemAgencia_dataFinal_field', 
+		id			  : 'relatorioConsolidadoCorretagemAgencia_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioConsolidadoCorretagemAgencia_dataInicial'
+	});
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioConsolidadoCorretagemAgencia_operacao_field',
+		id			: 'relatorioConsolidadoCorretagemAgencia_agencia',
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+	
+}
+
+function analiticoCorretagem_formulario() {
+	
+	var dtInicial = new Ext.form.DateField({
+		allowBlank	: true,
+		name		: 'dtInicial',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoCorretagem_dataInicial_field',
+		id			: 'relatorioAnaliticoCorretagem_dataInicial',
+		autoCreate  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '1', onkeypress: 'mascara(this, Mask.date);'},
+		format	    : 'd/m/Y',
+		vtype	    : 'daterange',
+		endDateField: 'relatorioAnaliticoCorretagem_dataFinal'
+	});
+	
+	var dtFinal = new Ext.form.DateField({
+		allowBlank	  : true,
+		name		  : 'dtFinal',
+		width		  : 175,
+		renderTo	  : 'relatorioAnaliticoCorretagem_dataFinal_field',
+		id			  : 'relatorioAnaliticoCorretagem_dataFinal',
+		autoCreate	  : {tag: 'input', type: 'text', maxlength: '10', autocomplete: 'off', tabindex: '2', onkeypress: 'mascara(this, Mask.date);'},
+		format		  : 'd/m/Y',
+		vtype		  : 'daterange',
+		startDateField: 'relatorioAnaliticoCorretagem_dataInicial'
+	});	
+	
+	var agencia = new Ext.form.NumberField({
+		allowBlank	: true,
+		blankText	: msgErroVazio,			
+		name		: 'agencia',
+		width		: 175,
+		renderTo	: 'relatorioAnaliticoCorretagem_agencia_field',
+		id			: 'relatorioAnaliticoCorretagem_agencia', 
+		autoCreate 	: {tag: 'input', type: 'text', maxlength: '4', autocomplete: 'off', tabindex: '0'}
+	});
+}
+
+function relatorioConsolidadoCorretagem_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoCorretagem_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoCorretagem_dataFinal').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoCorretagem'));
+	Ext.get('relatorioConsolidadoCorretagem_div').removeClass('hide');
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoCorretagemTotalizador'));
+	Ext.get('relatorioConsolidadoCorretagemTotalizador').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoCorretagem',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}else{
+	    		
+		    	var storeTotal = new Ext.data.Store({
+		    		proxy: new Ext.data.HttpProxy(
+		    				new Ext.data.Connection({
+		    					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoCorretagemTotalizador',
+		    					method: 'POST'
+		    				})
+		    		),
+		    		baseParams: {
+		    			dtInicial	: dtInicial,
+		    			dtFinal		: dtFinal
+		    		},
+		    		reader: new Ext.data.JsonReader({
+		    			totalProperty: 'total',
+		    			root: 'rows'},
+		    			Ext.data.Record.create([
+		    			                           {name: 'C0'},
+		    			                           {name: 'C1'},
+		    			                           {name: 'C2'},
+		    			                           {name: 'C3'},
+		    			                           {name: 'C4'},
+		    			                           {name: 'C5'}
+		    			                       ])
+		    			)
+		    	});
+	    		storeTotal.load({
+	    			callback: function(){
+	    				var grid = new Ext.grid.GridPanel({
+	    					hideHeaders: true,
+	    					id     : 'relatorioConsolidadoCorretagemTotalizador', 
+	    					store  : storeTotal,
+	    					columns: [
+	    						{
+	    							header   : 'Total',
+	    							width    : 100,
+	    							dataIndex: 'C0',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C1',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C2',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C3',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C4',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C5',
+	    							sortable : false
+	    						}
+	    					],	
+	    					stripeRows: true,
+	    					height	  : 24,
+	    					width	  : '98%',
+	    					renderTo  : 'relatorioConsolidadoCorretagemTotalizador'
+	    				
+	    				});	
+		    				
+	    				Ext.getCmp('relatorioConsolidadoCorretagemTotalizador').render();
+	    				Ext.getCmp('relatorioConsolidadoCorretagemTotalizador').getView().refresh();
+		    				
+	    	    	}
+	    		});
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoCorretagem', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Data',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Valor Bruto',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},{
+						header   : 'Corretagem',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},{
+						header   : 'Emolumentos',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},{
+						header   : 'Lei 10.833',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},{
+						header   : 'Valor Líquido',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					}
+					
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoCorretagem',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoCorretagem').render();
+			Ext.getCmp('relatorioConsolidadoCorretagem').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoCorretagem_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoCorretagem';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoCorretagem_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoCorretagem';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoCorretagem_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoCorretagem';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoCorretagemAgencia_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioConsolidadoCorretagemAgencia_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioConsolidadoCorretagemAgencia_dataFinal').getValue();
+	var agencia			= Ext.get('relatorioConsolidadoCorretagemAgencia_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoCorretagemAgencia'));
+	Ext.get('relatorioConsolidadoCorretagemAgencia_div').removeClass('hide');
+	
+	Ext.destroy(Ext.getCmp('relatorioConsolidadoCorretagemTotalizadorAgencia'));
+	Ext.get('relatorioConsolidadoCorretagemTotalizadorAgencia').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoCorretagemAgencia',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia     : agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'},
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}else{
+	    		
+		    	var storeTotal = new Ext.data.Store({
+		    		proxy: new Ext.data.HttpProxy(
+		    				new Ext.data.Connection({
+		    					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioConsolidadoCorretagemTotalizadorAgencia',
+		    					method: 'POST'
+		    				})
+		    		),
+		    		baseParams: {
+		    			dtInicial	: dtInicial,
+		    			dtFinal		: dtFinal,
+		    			agencia     : agencia
+		    		},
+		    		reader: new Ext.data.JsonReader({
+		    			totalProperty: 'total',
+		    			root: 'rows'},
+		    			Ext.data.Record.create([
+		    			                           {name: 'C0'},
+		    			                           {name: 'C1'},
+		    			                           {name: 'C2'},
+		    			                           {name: 'C3'},
+		    			                           {name: 'C4'},
+		    			                           {name: 'C5'}
+		    			                       ])
+		    			)
+		    	});
+	    		storeTotal.load({
+	    			callback: function(){
+	    				var grid = new Ext.grid.GridPanel({
+	    					hideHeaders: true,
+	    					id     : 'relatorioConsolidadoCorretagemTotalizadorAgencia', 
+	    					store  : storeTotal,
+	    					columns: [
+	    						{
+	    							header   : 'Total',
+	    							width    : 100,
+	    							dataIndex: 'C0',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C1',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C2',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C3',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C4',
+	    							sortable : false
+	    						},{
+	    							width    : 100,
+	    							dataIndex: 'C5',
+	    							sortable : false
+	    						}
+	    					],	
+	    					stripeRows: true,
+	    					height	  : 24,
+	    					width	  : '98%',
+	    					renderTo  : 'relatorioConsolidadoCorretagemTotalizadorAgencia'
+	    				
+	    				});	
+		    				
+	    				Ext.getCmp('relatorioConsolidadoCorretagemTotalizadorAgencia').render();
+	    				Ext.getCmp('relatorioConsolidadoCorretagemTotalizadorAgencia').getView().refresh();
+		    				
+	    	    	}
+	    		});
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioConsolidadoCorretagemAgencia', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Agência',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Valor Bruto',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},{
+						header   : 'Corretagem',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},{
+						header   : 'Emolumentos',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},{
+						header   : 'Lei 10.833',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},{
+						header   : 'Valor Líquido',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					}
+					
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioConsolidadoCorretagemAgencia',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioConsolidadoCorretagemAgencia').render();
+			Ext.getCmp('relatorioConsolidadoCorretagemAgencia').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+}
+
+function relatorioConsolidadoCorretagemAgencia_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioConsolidadoCorretagemAgencia';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioConsolidadoCorretagemAgencia_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioConsolidadoCorretagemAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioConsolidadoCorretagemAgencia_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioConsolidadoCorretagemAgencia';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoCorretagem_relatorio(){
+	
+	var tab = mainPanel.activeTab;
+	
+	var dtInicial		= Ext.get('relatorioAnaliticoCorretagem_dataInicial').getValue();
+	var dtFinal			= Ext.get('relatorioAnaliticoCorretagem_dataFinal').getValue();
+	var agencia         = Ext.get('relatorioAnaliticoCorretagem_agencia').getValue();
+	
+	if(dtInicial == ""){
+		msg("Data inicial é obrigatório");
+		fecharAba();
+	}
+	
+	Ext.destroy(Ext.getCmp('relatorioAnaliticoCorretagem'));
+	Ext.get('relatorioAnaliticoCorretagem_div').removeClass('hide');
+	
+	Ext.getBody().setLoading(true);
+	var store = new Ext.data.Store({
+		proxy: new Ext.data.HttpProxy(
+				new Ext.data.Connection({
+					url: '/sinac_intranet/relatoriosContabeis.do?method=relatorioAnaliticoCorretagem',
+					method: 'POST'
+				})
+		),
+		baseParams: {
+			dtInicial	: dtInicial,
+			dtFinal		: dtFinal,
+			agencia		: agencia
+				},
+		reader: new Ext.data.JsonReader({
+			totalProperty: 'total',
+			root: 'rows'},
+			Ext.data.Record.create([
+			                           {name: 'C0'},
+			                           {name: 'C1'},
+			                           {name: 'C2'},
+			                           {name: 'C3'},
+			                           {name: 'C4'},
+			                           {name: 'C5'}
+			                       ])
+			)
+	});
+	
+	store.addListener("loadexception", msgAction);	
+	 
+    store.load({
+		callback: function(){
+    		Ext.getBody().setLoading(false);
+	    	if(this.getCount() == 0) {
+				Ext.Msg.alert('','Não existem dados a serem apresentados.');
+				fecharAba();
+	    	}
+
+			var grid = new Ext.grid.GridPanel({
+				id     : 'relatorioAnaliticoCorretagem', 
+				store  : store,
+				columns: [
+					{
+						header   : 'Corretora',
+						width    : 100,
+						dataIndex: 'C0',
+						sortable : true
+					},{
+						header   : 'Valor Bruto',
+						width    : 100,
+						dataIndex: 'C1',
+						sortable : true
+					},
+					{
+						header   : 'Corretagem',
+						width    : 100,
+						dataIndex: 'C2',
+						sortable : true
+					},
+					{
+						header   : 'Emolumentos',
+						width    : 100,
+						dataIndex: 'C3',
+						sortable : true
+					},
+					{
+						header   : 'Lei 10.833',
+						width    : 100,
+						dataIndex: 'C4',
+						sortable : true
+					},{
+						header   : 'Valor Líquido',
+						width    : 100,
+						dataIndex: 'C5',
+						sortable : true
+					}
+				],
+				stripeRows: true,	
+				height	  : 200,
+				width	  : '98%',
+				renderTo  : 'relatorioAnaliticoCorretagem',
+				sm        : singleSelect
+			
+			});	
+			
+			Ext.getCmp('relatorioAnaliticoCorretagem').render();
+			Ext.getCmp('relatorioAnaliticoCorretagem_div').getView().refresh();
+			
+    	}
+	});
+    
+    Ext.get("dataAtual").update(getDataHoraFormatada());
+    $('#panelBtnRPld').show();
+	
+}
+
+function relatorioAnaliticoCorretagem_imprimir(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=imprimirRelatorioAnaliticoCorretagem';
+	window.open(varUrl,'Imprimir');
+}
+
+function relatorioAnaliticoCorretagem_download(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=downloadRelatorioAnaliticoCorretagem';
+	window.open(varUrl,'Download');
+}
+
+function relatorioAnaliticoCorretagem_planilha(){
+	var varUrl = '/sinac_intranet/relatoriosContabeis.do?method=planilhaRelatorioAnaliticoCorretagem';
+	window.open(varUrl,'Download');
+}
